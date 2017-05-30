@@ -1,0 +1,25 @@
+Goal - Show how web services are built on the OSI model of network layers.
+
+V1 - A very simple client and server
+[Describe it and run it.  Have the students run it too].
+Doesn't seem like much, does it?
+What is being done for us here?  What kind of technologies does this server rely on?
+ - Uses TCP/IP - "Transport Layer" - to establish a persistent connection to an address.
+ - Notice we said "localhost"--the socket library knows how to map that to an "IP address" [What is "IP"?]
+ - Knows how to listen and wait to establish a connection.
+ - Socket - "Session Layer" - bi-directional communication.
+ - Reliable delivery of the entire (variable-length) message.
+
+[Don't dwell on the OSI model, but make point that each layer has defined responsibilities, upon which more functionality can be built].
+
+[So, this server can be called a TCP/IP server.  What is the difference between TCP/IP and HTTP?]
+
+V1.5 - Make the server persistent.
+
+
+V2 - The simplest possible web server.
+
+- What makes a server a "web" server?
+  - It sends HTML?  (Not exactly; it could send JSON, or CSV, or a file attachment, and still be a "web" server).
+  - It implements HTTP - 
+
