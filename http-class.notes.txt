@@ -1,25 +1,154 @@
-Goal - Show how web services are built on the OSI model of network layers.
+HTTP Class
+Objective - Progress from a very basic client/server app, to an app server built on a web framework.
+Overall Goal - Understand the fundamentals of how web applications communicate via HTTP.
 
-V1 - A very simple client and server
-[Describe it and run it.  Have the students run it too].
+Version 1 - Very Simple Server and Client
+---------
+Objective - Establish a "reliable" network connection and transmit data one way.
+Goal: Identify some basic network components on which a server is built.
+
+- Receive a request from a client (e.g., client.rb, cURL, and/or telnet), and return "Hello, world".
+[Describe server.rb and client.rb and run them.  Have the students do it too].
 Doesn't seem like much, does it?
+What happens if you run client.rb first?
 What is being done for us here?  What kind of technologies does this server rely on?
  - Uses TCP/IP - "Transport Layer" - to establish a persistent connection to an address.
- - Notice we said "localhost"--the socket library knows how to map that to an "IP address" [What is "IP"?]
+ - Notice we said "localhost"--the socket library knows how to map that to an "IP address"
+   [What is "IP"?  https://tools.ietf.org/html/rfc791]
  - Knows how to listen and wait to establish a connection.
  - Socket - "Session Layer" - bi-directional communication.
  - Reliable delivery of the entire (variable-length) message.
 
 [Don't dwell on the OSI model, but make point that each layer has defined responsibilities, upon which more functionality can be built].
 
-[So, this server can be called a TCP/IP server.  What is the difference between TCP/IP and HTTP?]
+- Add a loop to the server.
 
-V1.5 - Make the server persistent.
+So, this app is a basic example of a TCP/IP client/server architecture.
 
 
-V2 - The simplest possible web server.
+- What is missing from our architecture?
+  - useful functionality!  "Hello, world" is not very valuable info.
+  - fault tolerance.  Doesn't try to catch or recover from errors.
+  - authentication.  No notion of who's connecting.
+  - scalability.  What happens if thousands of clients try to connect at once?
+  - multi-user capability.
+  - Also...bidirectional data transfer.  This is something critical to webapps.
 
-- What makes a server a "web" server?
-  - It sends HTML?  (Not exactly; it could send JSON, or CSV, or a file attachment, and still be a "web" server).
-  - It implements HTTP - 
+
+
+Version 2 - Not-Quite-As-Simple-Server-and-client - bidirectional communication
+---------
+Objective: Two-way data transfer on the same connection
+Goal: Begin to understand how quickly communication gets complicated
+Notice that in our first client/server app, data only went one way:
+- Client connects to the server and reads from it, but does not try to write.
+- Server accepts the requested connection, and writes back to the client, but does not try to read.
+
+- Let's try to make our client and server a little fancier: Have the client write, and the server read
+[Add a client write() and a server read().  Give it a try]
+Why does it hang?
+Because by default, socket I/O is "blocking"...the program waits until the socket is closed before moving on.
+1. Connection established.
+2. server blocking-reads the socket to hear what the client has to say.
+3. client sends its message.
+4. client blocking-reads the socket to hear the server's response.
+[Any volunteers to describe the issue?]
+[Hint: TCP supports variable-length messages.  How does the program know the message is done?  For blocking reads, it doesn't know until the other end closes the socket.]
+5. So, both ends are waiting for the other to terminate the connection.
+
+It's starting to get messy...
+
+What do we need?  Some agreed way to signal when to stop reading.  Several options...
+- Agree how long the message will be, and just read only that much, or...
+- Read until you see a special character, or...
+- Read non-blocking.
+
+For now, let's just read non-blocking:  recv(some-static-number-of-bytes).
+- Only have to do it on one side.  Let's do it on the server side.
+- This is a rather stupid implementation:  use 10,000 (surely no message will be longer than that!)
+
+
+
+Version 3 - Very Simple HTTP Server (use an existing HTTP client)
+---------
+Objective - Send valid HTTP request, and return valid HTTP response.
+Goal: Understand what makes a server specifically an HTTP server, and why HTTP is necessary.
+
+- "What makes a server a "web" server?"
+- It sends HTML?  (Not exactly; it could send JSON, or CSV, or a file attachment, and still be a "web" server).
+ANSWER: It communicates by implementing the HTTP protocol specification.
+- "What is HTTP an acronym for?"
+- "What is a protocol?"  [A basis for communication; a code of correct conduct; a set of common, identifiable, and perhaps negotiable assumptions]
+- "What is the difference between TCP/IP and HTTP?"
+
+How close to HTTP is what we have?  Can we "fake out" and HTTP server or client?
+- Can we hit an HTTP server with our client?  Let's try...[Anybody know of an HTTP server we could use?]
+- In client.rb, change "localhost" to e.g., "google.com".
+Hmmm, that doesn't work.  It's hanging (and eventually times out).  What's going on?
+Before we answer that...Just for fun, can we hit our server.rb with an HTTP client (i.e., http://localhost:8080 with a browser)? (ERR_INVALID_HTTP_RESPONSE)
+- Back to client.rb...change port to 80 and re-run.  Still hangs, and eventually times out.
+
+- Let's take a look at the HTTP 1.1 spec and see how HTTP clients and servers are supposed to communicate.
+https://tools.ietf.org/html/rfc2616
+
+- On the server side: Add manual handling of HTTP request.
+- On the client side: We'll use an existing HTTP client: The web browser and/or cURL.
+
+Homework: Teach client.rb to send the valid HTTP request to server.rb (no cheating by using an HTTP library!).
+Test: Can your client get a valid HTTP response back from Google?
+
+
+
+Version 4 - Server with simple HTTP routing
+---------
+Objective - Based on the request, decide whether to return "Hello, world" or "Goodbye, world".
+Goal - Understand what HTTP request routing is.
+
+Outline
+[TODO] - Update server.rb to handle a path-based route.
+
+
+
+Version 5 - Server with Parameter handling
+---------
+Objective - In the place of "world", return the value of the request's 'name' parameter, e.g., "Hello, John".
+Goal - Understand how params are (typically) passed
+
+[TODO]- Update server.rb to process a GET request with a name=<value> param, and return a valid HTTP response.
+- [Look at the HTTP 1.1 spec, section 5, which defines a Request.]
+  - Note what is and isn't in the "Request-URI" definition.  Notably, look at abs_path in 5.1.2.  Is the parameter-passing format name=value[&name=value...] defined in the HTTP 1.1. spec?
+
+
+
+Version 6 - A POST method
+---------
+Objective - Receive a POST request from cURL with a parameter, return updated data.
+Goal - Gain experience with using a spec to guide design choices.
+
+[TODO] - Have server append the request content to file, return the contents of the file.
+[TODO] - Look at POST definition in HTTP spec, discuss how it differs from GET.
+
+
+
+Version 5 - handle a request header
+---------
+Objective - Receive a POST request with an authorization header, return "Hello <param>, you are logged in as <username-in-header>" (or "Not authorized" if wrong or missing header value).
+Goal - Hands-on experience with processing request headers.
+
+[TODO] - Explore the similarities and diffs between request and response headers.
+
+
+
+Version 6 (if time) - Rack server
+---------
+Goal - Move up the application stack.
+[TODO] - Implement above with Rack.
+
+
+
+Version 7 (if time) - Sinatra server
+---------
+Goal - Move further up the application stack.
+[TODO] - Implement above with Sinatra..
+
 
