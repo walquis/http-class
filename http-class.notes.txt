@@ -8,7 +8,10 @@ Objective - Establish a "reliable" network connection and transmit data one way.
 Goal: Identify some basic network components on which a server is built.
 
 - Receive a request from a client (e.g., client.rb, cURL, and/or telnet), and return "Hello, world".
-[Describe server.rb and client.rb and run them.  Have the students do it too].
+[Describe server.rb and client.rb and run them side-by-side.  Have the students do it too].
+$ cd 1.0-very-simple-server
+$ ruby server.rb
+$ ruby client.rb  # In another window.
 Doesn't seem like much, does it?
 What happens if you run client.rb first?
 What is being done for us here?  What kind of technologies does this server rely on?
@@ -21,13 +24,13 @@ What is being done for us here?  What kind of technologies does this server rely
 
 [Don't dwell on the OSI model, but make point that each layer has defined responsibilities, upon which more functionality can be built].
 
-- Add a loop to the server.
+- [Add a loop to the server around the socket-handler:  "loop do ... end"].  Cool!
 
 So, this app is a basic example of a TCP/IP client/server architecture.
 
 
 - What is missing from our architecture?
-  - useful functionality!  "Hello, world" is not very valuable info.
+  - useful functionality!  "Hello, world" is not very life-enhancing info.
   - fault tolerance.  Doesn't try to catch or recover from errors.
   - authentication.  No notion of who's connecting.
   - scalability.  What happens if thousands of clients try to connect at once?
@@ -40,62 +43,120 @@ Version 2 - Not-Quite-As-Simple-Server-and-client - bidirectional communication
 ---------
 Objective: Two-way data transfer on the same connection
 Goal: Begin to understand how quickly communication gets complicated
-Notice that in our first client/server app, data only went one way:
+Notice that in our first client/server app, data only went one way (which way?):
 - Client connects to the server and reads from it, but does not try to write.
-- Server accepts the requested connection, and writes back to the client, but does not try to read.
+- Server accepts the requested connection, and writes "Hello World" back to the client, but does not try to read.
 
-- Let's try to make our client and server a little fancier: Have the client write, and the server read
-[Add a client write() and a server read().  Give it a try]
+- Let's try to make our client and server a little fancier: Have the client write and the server read *on the same connection* (Whoa, crazy!)
+
+cd into 2.0-not-quite-as-simple-server, where we've added a client write() and a corresponding server read().
+
+$ diff ../1.0-very-simple-server/client.rb .
+6a7,8
+> socket.puts "Hi there, server!"
+> puts "CLIENT: Sent message to server"
+$
+
+Client has just two lines added.  How about the server?
+
+$ cd ../2.0-not-quite-as-simple-server
+diff ../1.0-very-simple-server/server.rb .
+7a8
+> puts "FROM THE CLIENT: " + socket.read
+$
+
+Let's try it!  [Run server.rb, then client.rb]
+
 Why does it hang?
-Because by default, socket I/O is "blocking"...the program waits until the socket is closed before moving on.
-1. Connection established.
-2. server blocking-reads the socket to hear what the client has to say.
-3. client sends its message.
-4. client blocking-reads the socket to hear the server's response.
-[Any volunteers to describe the issue?]
-[Hint: TCP supports variable-length messages.  How does the program know the message is done?  For blocking reads, it doesn't know until the other end closes the socket.]
+
+Because by default, socket I/O is "blocking"...the read() waits until the socket is closed before moving on.
+The sequence of events:
+1. Connection established by opening the socket.
+2. Server listens on the socket, waiting to hear what the client has to say. In other words, it "blocks".
+3. Client sends its message.
+4. Client then also listens on the socket, waiting to hear the server's response.
+[Any volunteers to describe the issue?]  Client is waiting on the server, but it will never hear from the server, because the server is waiting on the client.  Because TCP supports variable-length messages, there might be more data coming.  How does the read() know the message is complete?  For blocking reads, it doesn't know until the other end closes the socket.]
 5. So, both ends are waiting for the other to terminate the connection.
 
-It's starting to get messy...
+How might we get around this issue?
+[Hint: I said the *default* is to block...what if we could change the default?]
+
+It's starting to get messy...!
 
 What do we need?  Some agreed way to signal when to stop reading.  Several options...
-- Agree how long the message will be, and just read only that much, or...
+- Agree how long the message will be, and read only that much, or...
 - Read until you see a special character, or...
 - Read non-blocking.
 
-For now, let's just read non-blocking:  recv(some-static-number-of-bytes).
-- Only have to do it on one side.  Let's do it on the server side.
-- This is a rather stupid implementation:  use 10,000 (surely no message will be longer than that!)
+For now, let's just go with non-blocking:  Instead of read(), use recv(some-static-number-of-bytes).
 
+server.rb: puts "FROM THE CLIENT: " + socket.recv(10000)
+
+- Only have to do it on one side.  Let's do it on the server side.
+- This is a rather stupid implementation [Why?  ANSWER: Because we're assuming a maximum length]
+      Use 10,000 bytes for max; surely no message will be longer than that!  (What kind of message could be longer...?)
 
 
 Version 3 - Very Simple HTTP Server (use an existing HTTP client)
 ---------
 Objective - Send valid HTTP request, and return valid HTTP response.
-Goal: Understand what makes a server specifically an HTTP server, and why HTTP is necessary.
+Goal: Understand what makes a server specifically an "HTTP" server, and why HTTP is necessary.
 
 - "What makes a server a "web" server?"
 - It sends HTML?  (Not exactly; it could send JSON, or CSV, or a file attachment, and still be a "web" server).
 ANSWER: It communicates by implementing the HTTP protocol specification.
-- "What is HTTP an acronym for?"
+- [What is HTTP an acronym for?  What is "Hypertext"?]
 - "What is a protocol?"  [A basis for communication; a code of correct conduct; a set of common, identifiable, and perhaps negotiable assumptions]
-- "What is the difference between TCP/IP and HTTP?"
+- [What is the difference between TCP/IP and HTTP?]
 
-How close to HTTP is what we have?  Can we "fake out" and HTTP server or client?
-- Can we hit an HTTP server with our client?  Let's try...[Anybody know of an HTTP server we could use?]
-- In client.rb, change "localhost" to e.g., "google.com".
-Hmmm, that doesn't work.  It's hanging (and eventually times out).  What's going on?
-Before we answer that...Just for fun, can we hit our server.rb with an HTTP client (i.e., http://localhost:8080 with a browser)? (ERR_INVALID_HTTP_RESPONSE)
-- Back to client.rb...change port to 80 and re-run.  Still hangs, and eventually times out.
+How close to HTTP is what we have already?
+- Can our server communicate with an HTTP client?
+- Can our client communicate with an HTTP server?
+
+How could we try hitting our server.rb with an HTTP client?
+(i.e., http://localhost:8080 with a browser)? (ERR_INVALID_HTTP_RESPONSE)
+
+$ cd ../3.0-very-simple-http-server
+$ ruby server.rb
 
 - Let's take a look at the HTTP 1.1 spec and see how HTTP clients and servers are supposed to communicate.
 https://tools.ietf.org/html/rfc2616
+1.1 Purpose
+- "request/response"
+- "open-ended set of methods and headers that indicate the purpose of a request"
+- URL as "the resource to which the method is to be applied"
+- "Messages are passed in a format similar to that used by Internet mail as defined by the Multipurpose Internet Mail Extensions (aka MIME)."
+
+1.4 Overall Operations
+- "request/response protocol"
+- Client sends Request: Method, URI, protocol version, followed by MIME-like message.
+- Server responds with status line including msg protocol version and success-or-error-code, followed by MIME-like message.
+
+5 Request
+
+Request       = Request-Line              ; Section 5.1
+                        *(( general-header        ; Section 4.5
+                         | request-header         ; Section 5.3
+                         | entity-header ) CRLF)  ; Section 7.1
+                        CRLF
+                        [ message-body ]          ; Section 4.3
+
+Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
+
+
+What does all this mean?  [Skim over BNF notation, cut to the chase: "A line with an HTTP method, space, URL, space, HTTP/1.1
+
 
 - On the server side: Add manual handling of HTTP request.
 - On the client side: We'll use an existing HTTP client: The web browser and/or cURL.
 
+- Can we hit an HTTP server with our client?  Let's try...[Anybody know of an HTTP server we could use?]
+- In client.rb, change "localhost" to e.g., "google.com".
+Hmmm, that doesn't work.  It's hanging (and eventually times out).  What's going on?
+- Change port to 80 and re-run.  Still hangs, and eventually times out.
+
 Homework: Teach client.rb to send the valid HTTP request to server.rb (no cheating by using an HTTP library!).
-Test: Can your client get a valid HTTP response back from Google?
+Test: Can your client get a valid HTTP response back from Google and print it out to the console?
 
 
 

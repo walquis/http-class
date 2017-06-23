@@ -5,6 +5,10 @@ port = 8080
 
 listener = TCPServer.open(host, port)
 socket = listener.accept  # Wait til a client connects, then open a socket.
+puts "FROM THE CLIENT: "
+while txt = socket.readline do
+  puts txt
+end
 socket.puts("Hello, world")
 puts "SERVER: Sent message to client"
 socket.close
