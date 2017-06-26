@@ -8,10 +8,17 @@ listener = TCPServer.open(host, port)
 loop do
   socket = listener.accept  # Wait til a client connects, then open a socket.
   puts "FROM THE CLIENT: "
-  txt = socket.recv(10000)
-  puts txt
-  socket.puts("Hello, world")
-  puts "SERVER: Sent 'Hello, world' message to client"
-  socket.close
+  while txt = socket.readline
+    puts txt
+    if txt == "\r\n"  # i.e., CRLF
+      puts "reached end of request"
+      socket.print("HTTP/1.1 200 OK\r\n")
+      socket.print("\r\n")
+      socket.puts("Hello, world")
+      puts "SERVER: Sent 'Hello, world' response to client"
+      socket.close
+      break
+    end
+  end
 end
 puts "SERVER: now I'm exiting"
