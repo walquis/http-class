@@ -7,10 +7,13 @@ Goals
 - Begin to differentiate between message protocols and layers.
 - Gain an appreciation of what and how much web frameworks do for you behind the scenes.
 
-Version 1 - Very Simple Server and Client
+Version 1 - Very Simple Server and Client  - 35-45 minutes
 ---------
 Objective - Establish a "reliable" network connection and transmit data one way.
 Goal: Identify some basic network components on which a server is built.
+
+Setup: 
+$ git clone https://github.com/walquis/http-class.
 
 - Receive a request from a client (e.g., client.rb, cURL, and/or telnet), and return "Hello, world".
 [Describe server.rb and client.rb and run them side-by-side.  Have the students do it too].
@@ -35,7 +38,11 @@ What is being done for us here?  What kind of technologies does this server rely
 
 - [Add a loop to the server around the socket-handler:  "loop do ... end"].  Cool!
 
+- Is the client using the same connection every time it talks to the server?
+
 So, this app is a basic example of a TCP/IP client/server architecture.
+
+[If time, let them try hitting each others' servers from clients on different machines].
 
 TAKEAWAY:  Even though this is about the simplest client and server we could imagine, a LOT is going on under the hood!
 
@@ -46,11 +53,19 @@ TAKEAWAY:  Even though this is about the simplest client and server we could ima
   - authentication.  No notion of who's connecting.
   - scalability.  What happens if thousands of clients try to connect at once?
   - multi-user capability.
+  - Also...BI-DIRECTIONAL DATA TRANSFER--which is critical for webapps.
+  
+  
+How do we know?  Why, by looking at the spec of course. 
 
-- Also...BI-DIRECTIONAL DATA TRANSFER--which is critical for webapps.  How do we know?
-- Let's take a look at the HTTP 1.1 spec and see how HTTP clients and servers are supposed to communicate.
+Let's take a look at the HTTP 1.1 spec and see how HTTP clients and servers are supposed to communicate.
+
+Section 1.4 - "In the simplest case, this may be accomplished VIA A SINGLE CONNECTION."
+
 https://tools.ietf.org/html/rfc2616 - The answer to "Where do they come up with this stuff?"
 
+
+[BREAK]
 
 
 Version 2 - Not-Quite-As-Simple-Server-and-client - bidirectional communication
@@ -62,7 +77,7 @@ Notice that in our first client/server app, data only went one way (which way?):
 - Client connects to the server and reads from it, but does not try to write.
 - Server accepts the requested connection, and writes "Hello World" back to the client, but does not try to read.
 
-- Let's try to make our client and server a little fancier: Have the client write and the server read *on the same connection* (Whoa, crazy!)
+- Let's try to make our client and server a little fancier: Have the client write and the server read ON THE SAME CONNECTION (Whoa, crazy!)
 
 cd into 2.0-not-quite-as-simple-server, where we've added a client write() and a corresponding server read().
 
@@ -110,6 +125,7 @@ server.rb: puts "FROM THE CLIENT: " + socket.recv(10000)
 - Only have to do it on one side.  Let's do it on the server side.
 - This is a rather stupid implementation [Why?  ANSWER: Because we're assuming a maximum length]
       Use 10,000 bytes for max; surely no message will be longer than that!  (What kind of message could be longer...?)
+
 
 
 Version 3 - Very Simple HTTP Server (use an existing HTTP client)

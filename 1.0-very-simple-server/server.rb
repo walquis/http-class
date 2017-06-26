@@ -1,11 +1,9 @@
 require 'socket' # A library built into Ruby - provides the TCPServer class
 
-host = 'localhost'
-port = 8080
-
-listener = TCPServer.open(host, port)
+$stdout.sync = 1  # Line-buffer output to STDOUT.
+listener = TCPServer.open(8080)
 socket = listener.accept  # Wait til a client connects, then open a socket.
 socket.puts("Hello, world")
-puts "SERVER: Sent message to client"
+puts "SERVER: Sent 'Hello, world' to client"
 socket.close
 puts "SERVER: now I'm exiting"
