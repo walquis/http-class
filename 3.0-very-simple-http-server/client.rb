@@ -1,6 +1,6 @@
 require 'socket' # A library built into Ruby - provides the TCPSocket class
 
-socket = TCPSocket.open('localhost',8080)
+socket = TCPSocket.open('www.google.com',80)
 socket.puts "Hi there, server!"
 puts "CLIENT: Sent 'Hi there, server!' to server"
 response_from_server = socket.read

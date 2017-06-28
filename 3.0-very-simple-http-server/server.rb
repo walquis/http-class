@@ -8,7 +8,7 @@ loop do
   txt = socket.recv(10000)
   puts txt
   socket.puts("Hello, world")
-  puts "SERVER: Sent 'Hello, world' response to client"
   socket.close
+  puts "SERVER: Sent 'Hello, world' response to client"
 end
 puts "SERVER: now I'm exiting"

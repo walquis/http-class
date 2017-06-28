@@ -150,11 +150,14 @@ FIRST - How could we try hitting our server.rb with an HTTP client?
 $ cd ../3.0-very-simple-http-server
 $ ruby server.rb
 
+What is an HTTP client we could use?  [Chrome? ...]
+
 [Hit http://localhost:8080 with Chrome.  Look at the output.  Look at the response headers in Chrome.]
 
-[Examine the server output, talk about 
+[Examine the server output, talk about what we see.  For instance: Is our server sending valid HTTP?  Why isn't Chrome complaining? ]
+[Look at the response headers in Chrome.  Also, '-i' in curl shows response headers, if there are any]
 
-How about using curl?
+How about curl (as a client)?
 $ curl -i http://localhost:8080
 
 
@@ -189,10 +192,11 @@ Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 
 What does all this mean?  [Skim over BNF notation, cut to the chase: "A line with an HTTP method, space, URL, space, HTTP/1.1"
 - HTTP is a request/response protocol.
-- What does a valid HTTP request look like?  [ Examine server.rb's console output ]
+- What does a valid HTTP request look like?  [ Examine server.rb's console output--compare with spec. ]
+Have you folks seen this before?  [They may have, from material earlier in the week]
 
 - How about the response... 
-   - Is the server giving it a response? 
+   - Is the server giving the client a response? 
    - What kind of response is the server giving it?  Not a very good one...
    - What is wrong with the response?  (no request-line headers at all!)
 
@@ -219,17 +223,21 @@ What's different?
 Request:    Request-Line = Method       SP Request-URI SP HTTP-Version  CRLF
 Response:   Status-Line  = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
 
+$ curl -i http://www.google.com
 
-Let's begin to turn our server into a "real HTTP server".
-- Add proper handling of an HTTP GET request to our server.rb. 
+[Compare the response first-line with the HTTP spec.]
+
+
+Let's begin to turn our server into a "real HTTP server" (We will leave the client alone for now).
 - Fix the "recv(10000)" hack.
+- Add proper handling of an HTTP GET request to our server.rb. 
 
 
 
 Fixing recv(10000)...
-Recall that because our simple server.rb didn't know how to tell when a request was finished "requesting", we cheated and said, "Let's just read whatever is there, or 10,000 bytes, whichever comes firs, hope that's good enough".  But that's not very good service...
+Recall that because our simple server.rb didn't know how to tell when a request was finished "requesting", we cheated and said, "Let's just read whatever is there, or 10,000 bytes, whichever comes first, hope that's good enough".  But that's not very good service...
 
-Now that we know we're implementing HTTP, we should have some guidance, right?  In particular, how do we know when a GET request is finished?
+Now that we know we're implementing HTTP, we should have some guidance.  Does the HTTP spec tell us when a GET request is finished?
 
 Takes a little digging into the spec, but there is a nugget in section 4.3 that shines light:
 
@@ -240,38 +248,45 @@ So, if there's no "Content-Length", then a message-body is not present.  Awesome
 (You can go deep here, by asking "Well, COULD a GET request ever contain a message body?"  This post is an example demonstrating that people really do go back to the spec to answer such questions:  https://stackoverflow.com/questions/978061/http-get-with-request-body   The short answer is Yes, you can put a message-body in a GET request; and NO, you should never actually do so.)
 
 
-For our very simple HTTP server, let's make the simplifying assumption that a GET request has no message body.
+For our very simple HTTP server, let's make the simplifying assumption that a GET request has no message body--AND, we'll also assume that every request is a GET request (that is, we're not checking whether the first line starts with "GET", and we're not checking for Content-Length header).
 
 This means that if our server sees a CRLF by itself...aHA, the request is complete!  Send the response and go on.
 
 $ ruby server.2.recv-replaced.rb
 
+$ curl -i http://localhost:8080
 
-OK, next step in a "real HTTP server":  Return a valid HTTP response.
+OK, that works.
+
+Next step in a "real HTTP server":  Return a valid HTTP response.
 
 Its format looks just like a request, except for the first line:
 
 Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
 
 
+$ ruby server.3.valid-http-response.rb
+
+[Small digression...]
 - On the client side: We'll use an existing HTTP client: The web browser and/or cURL.
 - Can we hit an HTTP server with our client?  Let's try...[Anybody know of an HTTP server we could use?]
 - In client.rb, change "localhost" to e.g., "google.com".
 
-Homework: On the client side, do what we did with the server side:  Teach client.rb to send a valid HTTP GET request to server.rb (no cheating by using an HTTP library!).   Can your client get a valid HTTP response back from http://www.google.com and print it out to the console?
+Homework [or lab?]: For the client, do what we did to the server:  Teach client.rb to send a valid HTTP GET request to server.rb (no cheating by using an HTTP library!).   Can your client get a valid HTTP response back from http://www.google.com and print it out to the console?
 
-$ ruby server.3.valid-http-response.rb
+[OK, back to the server]
 
 
-Whew.  OK.  We've come a long way.
-- Starting from a brainless one-way server that knows nothing about HTTP, we now have a server that takes HTTP requests (it assumes that they are GET requests) and returns valid HTTP responses.
-- We got some practice reading the HTTP 1.1 spec to see how our HTTP *must* work, and how it *should* work.
+Whew.  OK.  We've come a long way...
+
+- Starting from a brainless one-way server that knows nothing about HTTP, we now have a server that takes HTTP requests (for now, it assumes that they are GET requests) and returns valid HTTP responses.
+- We got some practice reading the HTTP 1.1 spec, where we saw some of how HTTP *must* work, and also a bit about how it *should* work.
 
 What next?
-- Routing
-- Handling GET parameters.
+- Routing - What if we didn't assume GET?  What if we started paying attention to the Request-URI in the HTTP header?
+- Handling GET parameters - Everything that comes after the host:port
 - Handling a POST method.
-- Handling POST parameters.
+- Handling POST parameters - Reading the query params from the body of the request.
 
 
 Version 4 - Server with simple HTTP routing
@@ -314,16 +329,16 @@ Goal - Hands-on experience with processing request headers.
 
 
 
-Version 6 (if time) - Rack server
+Version 6 (if time) - Rack
 ---------
-Goal - Move up the application stack.
-[TODO] - Implement above with Rack.
+Goal - Appreciate what a webserver interface does for you.
 
 
 
-Version 7 (if time) - Sinatra server
+
+Version 7 (if time) - Sinatra server - a micro-framework
 ---------
-Goal - Move further up the application stack.
-[TODO] - Implement above with Sinatra..
-
+Goal - Distinguish Rack from Sinatra
+What does Sinatra have that Rack doesn't?
+- View templates
 
