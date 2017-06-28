@@ -60,9 +60,9 @@ How do we know?  Why, by looking at the spec of course.
 
 Let's take a look at the HTTP 1.1 spec and see how HTTP clients and servers are supposed to communicate.
 
-Section 1.4 - "In the simplest case, this may be accomplished VIA A SINGLE CONNECTION."
-
 https://tools.ietf.org/html/rfc2616 - The answer to "Where do they come up with this stuff?"
+
+Section 1.4 - "In the simplest case, this may be accomplished VIA A SINGLE CONNECTION."  There it is!
 
 
 [BREAK]
