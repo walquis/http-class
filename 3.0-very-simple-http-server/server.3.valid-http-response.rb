@@ -5,6 +5,10 @@ listener = TCPServer.open(8080)
 loop do
   socket = listener.accept  # Wait til a client connects, then open a socket.
   puts "FROM THE CLIENT: "
+  txt = socket.readline  # The first line, which is the Request-Line
+  (method,uri,version) = txt.strip.split(' ')
+  puts "METHOD = #{method}, URI = #{uri}, version = #{version}"
+
   while txt = socket.readline
     puts txt
     if txt == "\r\n"  # i.e., CRLF
