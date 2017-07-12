@@ -310,7 +310,7 @@ Goal - Understand how params are (typically) passed
 
 
 
-Version 6 - A POST method
+Version 6 - Server that handles a POST method
 ---------
 Objective - Receive a POST request from cURL with a parameter, return updated data.
 Goal - Gain experience with using a spec to guide design choices.
@@ -320,23 +320,47 @@ Goal - Gain experience with using a spec to guide design choices.
 
 
 
-Version 5 - handle a request header
+Version 7 - Server that handles a request header
 ---------
-Objective - Receive a POST request with an authorization header, return "Hello <param>, you are logged in as <username-in-header>" (or "Not authorized" if wrong or missing header value).
+Objective - Receive a POST request (e.g. /user/login) with an authorization header, return "Hello <param>, you are logged in as <username-in-header>" (or "Not authorized" if wrong or missing header value).
 Goal - Hands-on experience with processing request headers.
 
 [TODO] - Explore the similarities and diffs between request and response headers.
 
 
 
-Version 6 (if time) - Rack
+Version 8 (if time) - Rack
 ---------
 Goal - Appreciate what a webserver interface does for you.
 
+Look at and run server.1.simplest-rack.rb.
+How does this compare to our hand-built HTTP server?
+- Fewer lines of code.
+- More capability.  How so?...
+  - For example: Try hitting it with a POST request, using curl.  [Returns 411 "Length required"].
+  That's pretty cool!  It implements this "4.4 Message Length" recommendation in RFC2616:
+
+      If a request contains a message-body and a Content-Length is not given,
+       the server SHOULD respond with 400 (bad request) if it cannot
+       determine the length of the message, or with 411 (length required) if
+       it wishes to insist on receiving a valid Content-Length.
+
+(Actually, this recommendation doesn't apply, since we are not sending a message-body. In fact, I can't find anywhere that the HTTP spec requires a Content-Length header for POST with no message-body.  Can you?  But the Rack server does require it!)
+
+   Let's pass a request header: 
+$ curl -i -XPOST http://localhost:8080 -H "Content-Length:0"k
 
 
+More Rack - Let's try something a little fancier.  Let's use actual named Ruby classes, instead of an anonymous class.
 
-Version 7 (if time) - Sinatra server - a micro-framework
+server.2.pass-a-named-class.rb
+
+Next step - Rack provides wrappers for request (env) and response (the triplet).  The next server example
+
+server.3.with-request-and-response-wrapper-classes.rb
+       
+
+Version 9 (if time) - Sinatra server - a micro-framework
 ---------
 Goal - Distinguish Rack from Sinatra
 What does Sinatra have that Rack doesn't?

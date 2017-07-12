@@ -12,7 +12,7 @@ loop do
   while txt = socket.readline
     puts txt
     if txt == "\r\n"  # i.e., CRLF
-      puts "reached end of request"
+      puts "SERVER: reached end of request headers"
       socket.print("HTTP/1.1 200 OK\r\n")
       socket.print("\r\n")
       socket.puts("Hello, world")
