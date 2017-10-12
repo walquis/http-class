@@ -3,7 +3,7 @@ require 'socket' # A library built into Ruby - provides the TCPServer class
 $stdout.sync = 1  # Line-buffer output to STDOUT.
 listener = TCPServer.open(8080)
 socket = listener.accept  # Wait til a client connects, then open a socket.
-puts "FROM THE CLIENT: " + socket.recv(10000)
+puts "FROM THE CLIENT: " + socket.read
 socket.puts("Hello, world")
 puts "SERVER: Sent 'Hello, world' to client"
 socket.close
