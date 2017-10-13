@@ -4,17 +4,17 @@ require 'pry'
 
 class HelloWorld
   def response request
-    # Insted of  [ 200, { }, [ 'Hello World' ] ]  ...
-    resp = Rack::Response.new
+    # Instead of  [ 200, { }, [ 'Hello World' ] ]  ...
+    my_response = Rack::Response.new
     if request.params['direction'] == 'coming'
-      resp.body = [ 'Hello world' ]
+      my_response.body = [ 'Hello world' ]
     elsif request.params['direction'] == 'going'
-      resp.body = [ 'Goodbye world' ]
+      my_response.body = [ 'Goodbye world' ]
     else
-      resp.body = [ 'Are you going or coming?' ]
+      my_response.body = [ 'Are you going or coming?' ]
     end
 
-    resp.finish  # Send the Rack triplet
+    my_response.finish  # Send the response - A Rack triplet
   end
 end
 
@@ -29,5 +29,6 @@ class HelloWorldApp
   end
 end
 
-# Give Rack something that responds to "call(env)" & returns [ stat, header-hash, body-array ]
+# Give Rack something that responds to "call(env)" and
+# returns a Rack triplet: [ http_status_code, header-hash, body-array ]
 Rack::Server.start :app => HelloWorldApp

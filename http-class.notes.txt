@@ -1,16 +1,28 @@
 HTTP Class
-Objective - Progress from a very basic client/server app, to an app server built on a web framework.
+Objective - Progress from a very basic client/server app, to an app server built on a web framework. 
+
+Agenda:
+- Version 1 - Very Simple Server and Client  - 35-45 minutes
+- Version 2 - Not-Quite-As-Simple-Server-and-client - bidirectional communication
+- Version 3 - Very Simple HTTP Server (use an existing HTTP client)
+- Version 4 [TODO] - Server with simple HTTP routing
+- Version 5 - Server with Parameter handling
+- Version 6 - Server that handles a POST method
+- Version 8 - Simple Rack server
+- Version 9 - Rack with middleware
+- Version 10 - Very simple Sinatra server - a micro-framework
+
 
 Goals
 - Get introduced to reading specification documents--in this case, RFC2616, the HTTP 1.1 spec.
 - Understand the basic relationship between TCP/IP, HTTP, and HTML.
 - Begin to differentiate between message protocols and layers.
-- Gain an appreciation of what and how much web frameworks do for you behind the scenes.
+- Begin to appreciate what web frameworks do for you behind the scenes.
 
 Version 1 - Very Simple Server and Client  - 35-45 minutes
 ---------
 Objective - Establish a "reliable" network connection and transmit data one way.
-Goal: Identify some basic network components on which a server is built.
+Goal: Identify some basic networking components on which a server is built.
 
 Setup: 
 $ git clone https://github.com/walquis/http-class.
@@ -28,11 +40,13 @@ Doesn't seem like much, does it?
 What happens if you run client.rb first?
 What is being done for us here?  What kind of technologies does this server rely on?
  - Uses TCP/IP - "Transport Layer" - to establish a persistent connection to an address.
- - Notice we said "localhost"--the socket library knows how to map that to an "IP address"
+ - Notice we said "localhost"--the socket library knows how to map that to an "IP address".
    [What is "IP"?  https://tools.ietf.org/html/rfc791]
  - Knows how to listen and wait to establish a connection.
  - Socket - "Session Layer" - bi-directional communication.
- - Reliable delivery of the entire (variable-length) message.
+ - Reliable delivery of (all the packets of) the entire (variable-length) message.
+ - [Briefly discuss "unreliable delivery" - UDP - and packets].
+ - [Briefly discuss output buffering...e.g., the '$stdout.sync' statement in the server.]
 
 [Don't dwell on the OSI model, but make point that each layer has defined responsibilities, upon which more functionality can be built].
 
@@ -42,28 +56,21 @@ What is being done for us here?  What kind of technologies does this server rely
 
 So, this app is a basic example of a TCP/IP client/server architecture.
 
-[If time, let them try hitting each others' servers from clients on different machines].
+[If time, have them try hitting each others' servers from clients on different machines.
+They will need to discover each other's IP addresses...].
 
-TAKEAWAY:  Even though this is about the simplest client and server we could imagine, a LOT is going on under the hood!
+TAKEAWAY:  This is about the simplest client and server we can imagine, but a LOT is going on under the hood!
 
 
 - What is missing from our client/server architecture?
-  - useful functionality!  "Hello, world" is not very life-enhancing info.
+  - useful functionality!  "Hello, world" is not much value-add.
   - fault tolerance.  Doesn't try to catch or recover from errors.
   - authentication.  No notion of who's connecting.
   - scalability.  What happens if thousands of clients try to connect at once?
   - multi-user capability.
+  - (And, we're not relying on domain name resolution).
   - Also...BI-DIRECTIONAL DATA TRANSFER--which is critical for webapps.
   
-  
-How do we know?  Why, by looking at the spec of course. 
-
-Let's take a look at the HTTP 1.1 spec and see how HTTP clients and servers are supposed to communicate.
-
-https://tools.ietf.org/html/rfc2616 - The answer to "Where do they come up with this stuff?"
-
-Section 1.4 - "In the simplest case, this may be accomplished VIA A SINGLE CONNECTION."  There it is!
-
 
 [BREAK]
 
@@ -73,11 +80,11 @@ Version 2 - Not-Quite-As-Simple-Server-and-client - bidirectional communication
 Objective: Two-way data transfer on the same connection
 Goal: Begin to understand how quickly communication gets complicated
 
-Notice that in our first client/server app, data only went one way (which way?):
+Notice that in our first client/server app, data only went one way [which way?]...
 - Client connects to the server and reads from it, but does not try to write.
 - Server accepts the requested connection, and writes "Hello World" back to the client, but does not try to read.
 
-- Let's try to make our client and server a little fancier: Have the client write and the server read ON THE SAME CONNECTION (Whoa, crazy!)
+- Let's try to make our client and server a little fancier: Have the client write and the server read ON THE SAME CONNECTION.
 
 cd into 2.0-not-quite-as-simple-server, where we've added a client write() and a corresponding server read().
 
@@ -122,9 +129,12 @@ For now, let's just go with non-blocking:  Instead of read(), use recv(some-stat
 
 server.rb: puts "FROM THE CLIENT: " + socket.recv(10000)
 
-- Only have to do it on one side.  Let's do it on the server side.
-- This is a rather stupid implementation [Why?  ANSWER: Because we're assuming a maximum length]
-      Use 10,000 bytes for max; surely no message will be longer than that!  (What kind of message could be longer...?)
+- To make this example work, we only have to do it on one side. [Why?]
+Let's do it on the server side.
+- This is a rather stupid implementation.
+[Why?  ANSWER: Because we're assuming a maximum length]
+
+Use 10,000 bytes for max; surely no message will be longer than that!  (What kind of message could be longer...?)
 
 
 
@@ -139,6 +149,17 @@ ANSWER: It communicates by implementing the HTTP protocol specification.
 - [What is HTTP an acronym for?  What is "Hypertext"?]
 - "What is a protocol?"  [A basis for communication; a code of correct conduct; a set of common, identifiable, and perhaps negotiable assumptions]
 - [What is the difference between TCP/IP and HTTP?]
+
+-----------------------------------
+BTW...Earlier, I mentioned that bi-directional data transfer is needed for webapps?
+How do we know this?
+
+By looking at the spec: Let's take a look at the HTTP 1.1 spec and see how HTTP clients and servers are supposed to communicate.
+
+https://tools.ietf.org/html/rfc2616 - The answer to "Where do they come up with this stuff?"
+
+Section 1.4 - "In the simplest case, this may be accomplished VIA A SINGLE CONNECTION."  There it is!
+-----------------------------------
 
 How close to HTTP is what we have already?
 1 - Can our server communicate with an HTTP client?
@@ -295,6 +316,7 @@ Objective - Based on the request, decide whether to return "Hello, world" or "Go
 Goal - Understand what HTTP request routing is.
 
 Outline
+[Discuss, based on what we see in the HTTP 1.1. spec, what our server needs to do.]
 [TODO] - Update server.rb to handle a path-based route.
 
 
@@ -329,9 +351,10 @@ Goal - Hands-on experience with processing request headers.
 
 
 
-Version 8 (if time) - Rack
+Version 8 - Simple Rack server
 ---------
-Goal - Appreciate what a webserver interface does for you.
+Goal - Appreciate what an interface between Ruby framework and Ruby-compatible webserver does for you.
+Objective - Implement what we've done so far as a Rack server.
 
 Look at and run server.1.simplest-rack.rb.
 How does this compare to our hand-built HTTP server?
@@ -345,24 +368,41 @@ How does this compare to our hand-built HTTP server?
        determine the length of the message, or with 411 (length required) if
        it wishes to insist on receiving a valid Content-Length.
 
-(Actually, this recommendation doesn't apply, since we are not sending a message-body. In fact, I can't find anywhere that the HTTP spec requires a Content-Length header for POST with no message-body.  Can you?  But the Rack server does require it!)
+(Actually, this recommendation technically doesn't apply, since our request does not contain a message-body. In fact, I can't find anywhere that the HTTP spec requires a Content-Length header for POST with no message-body.  Can you?  But regardless, the Rack server does require the Content-Length header!)
 
    Let's pass a request header: 
 $ curl -i -XPOST http://localhost:8080 -H "Content-Length:0"k
 
 
-More Rack - Let's try something a little fancier.  Let's use actual named Ruby classes, instead of an anonymous class.
+More Rack - Let's do something a little fancier.  Let's use actual named Ruby classes, instead of an anonymous class.
 
 server.2.pass-a-named-class.rb
 
-Next step - Rack provides wrappers for request (env) and response (the triplet).  The next server example
+Next step - Rack provides wrappers for request (env) and response (the triplet), as in this next server example...
 
 server.3.with-request-and-response-wrapper-classes.rb
        
 
-Version 9 (if time) - Sinatra server - a micro-framework
+Version 9 - Rack server with middleware
+---------
+Goal: Begin to understand middleware.
+Objective: Create a layer of middleware and add it to a Rack server.
+
+From https://www.amberbit.com/blog/2011/07/13/introduction-to-rack-middleware/...
+
+Rack is used to group and order modules, which are usually Ruby classes, and specify dependencies between them. Rack::Builder puts these modules on top of each other, creating a stack-like structure of the final web application.
+
+
+$ bundle exec rackup config.ru  # Render a lobster!
+
+$ bundle exec rackup config.with_footer.ru  # Render a lobster with a shrimp footer!
+
+
+Version 10 - Very simple Sinatra server - a micro-framework
 ---------
 Goal - Distinguish Rack from Sinatra
 What does Sinatra have that Rack doesn't?
+- a DSL - e.g., "Method" methods - get, put, post, ...
 - View templates
+
 
