@@ -1,5 +1,7 @@
 # HTTP Class
-Objective - Progress from a very basic client/server app, to an app server built on a web framework.
+**Goal** - Appreciate the value of HTTP as foundational knowledge for web development
+
+**Objective** - Progress from a very basic client/server app, to an app server built on a web framework.
 
 ### Agenda:
 * Version 1 - Very Simple Server and Client  - 35-45 minutes
@@ -21,6 +23,7 @@ Objective - Progress from a very basic client/server app, to an app server built
 
 ## Version 1 - Very Simple Server and Client  - 35-45 minutes
 **Goal** - Identify some basic networking components on which a server is built.
+
 **Objective** - Establish a "reliable" network connection and transmit data one way.
 
 Setup:
@@ -76,6 +79,7 @@ What is missing from our client/server architecture?
 
 ## Version 2 - Not-Quite-As-Simple-Server-and-client - bidirectional communication
 **Goal** - Begin to understand how quickly communication gets complicated
+
 **Objective** - Two-way data transfer on the same connection
 
 Notice that in our first client/server app, data only went one way [which way?]...
@@ -295,6 +299,7 @@ What next?
 
 ## Version 4 - Server with simple HTTP routing
 **Goal** - Understand what HTTP request routing is.
+
 **Objective** - Based on the request, decide whether to return "Hello, world" or "Goodbye, world".
 
 [Discuss, based on what we see in the HTTP 1.1. spec, what our server needs to do.]
@@ -304,6 +309,7 @@ What next?
 
 ## Version 5 - Server with Parameter handling
 **Goal** - Understand how params are (typically) passed
+
 **Objective** - In the place of "world", return the value of the request's 'name' parameter, e.g., "Hello, John".
 
 [TODO]- Update server.rb to process a GET request with a name=<value> param, and return a valid HTTP response.
@@ -314,6 +320,7 @@ What next?
 
 ## Version 6 - Server that handles a POST method
 **Goal** - Gain experience with using a spec to guide design choices.
+
 **Objective** - Receive a POST request from cURL with a parameter, return updated data.
 
 [TODO] - Have server append the request content to file, return the contents of the file.
@@ -322,6 +329,7 @@ What next?
 
 ## Version 7 - Server that handles a request header
 **Goal** - Hands-on experience with processing request headers.
+
 **Objective** - Receive a POST request (e.g. /user/login) with an authorization header, return "Hello <param>, you are logged in as <username-in-header>" (or "Not authorized" if wrong or missing header value).
 
 [TODO] - Explore the similarities and diffs between request and response headers.
@@ -330,6 +338,7 @@ What next?
 
 ## Version 8 - Simple Rack server
 **Goal** - Appreciate what an interface between Ruby framework and Ruby-compatible webserver does for you.
+
 **Objective** - Implement what we've done so far as a Rack server.
 
 Look at and run server.1.simplest-rack.rb.
@@ -361,6 +370,7 @@ server.3.with-request-and-response-wrapper-classes.rb
 
 ## Version 9 - Rack server with middleware
 **Goal** - Begin to understand middleware.
+
 **Objective** - Create a layer of middleware and add it to a Rack server.
 
 From https://www.amberbit.com/blog/2011/07/13/introduction-to-rack-middleware/...
@@ -374,7 +384,8 @@ Rack is used to group and order modules, which are usually Ruby classes, and spe
 
 
 ## Version 10 - Very simple Sinatra server - a micro-framework
-**Goal** - Distinguish Rack from Sinatra
+**Goal** - Distinguish Sinatra from Rack
+
 **Objective** - Get a basic Sinatra app up and running.
 
 What does Sinatra have that Rack doesn't?
