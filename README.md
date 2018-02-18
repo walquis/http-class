@@ -1,5 +1,5 @@
 # HTTP Class
-Objective - Progress from a very basic client/server app, to an app server built on a web framework. 
+Objective - Progress from a very basic client/server app, to an app server built on a web framework.
 
 ### Agenda:
 * Version 1 - Very Simple Server and Client  - 35-45 minutes
@@ -23,7 +23,7 @@ Objective - Progress from a very basic client/server app, to an app server built
 **Goal** - Identify some basic networking components on which a server is built.
 **Objective** - Establish a "reliable" network connection and transmit data one way.
 
-Setup: 
+Setup:
     $ git clone https://github.com/walquis/http-class.
 
 * Receive a request from a client (e.g., client.rb, cURL, and/or telnet), and return "Hello, world".
@@ -69,7 +69,7 @@ What is missing from our client/server architecture?
 * multi-user capability.
 * (And, we're not relying on domain name resolution).
 * Also...BI-DIRECTIONAL DATA TRANSFER--which is critical for webapps.
-  
+
 
 [Ten-Minute BREAK]
 
@@ -179,7 +179,7 @@ Let's look at the HTTP 1.1 spec in some more detail: https://tools.ietf.org/html
 > * "open-ended set of methods and headers that indicate the purpose of a request"
 > * URL as "the resource to which the method is to be applied"
 > * "Messages are passed in a format similar to that used by Internet mail as defined by the Multipurpose Internet Mail Extensions (aka MIME)."
-> 
+>
 > 1.4 Overall Operations
 > * "request/response protocol"
 > * Client sends Request: Method, URI, protocol version, followed by MIME-like message.
@@ -204,8 +204,8 @@ What does all this mean?  [Skim over BNF notation, cut to the chase: "A line wit
 * What does a valid HTTP request look like?  [ Examine server.rb's console output--compare with spec. ]
 Have any of you seen this before?  [They may have, from material earlier in the week]
 
-How about the response... 
-* Is the server giving the client a response? 
+How about the response...
+* Is the server giving the client a response?
 * What kind of response is the server giving it?  Not a very good one...
 * What is wrong with the response?  (no request-line headers at all!)
 
@@ -218,7 +218,7 @@ What should a valid HTTP response look like?  Where should we look?
 >       | response-header
 >       | entity-header ) CRLF)
 >      CRLF
->      [ message-body ]  
+>      [ message-body ]
 > 6.1 Status-Line
 > Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
 
@@ -235,7 +235,7 @@ What's different?
 
 Let's begin to turn our server into a "real HTTP server" (We will leave the client alone for now).
 * Fix the "recv(10000)" hack.
-* Add proper handling of an HTTP GET request to our server.rb. 
+* Add proper handling of an HTTP GET request to our server.rb.
 
 
 Fixing recv(10000)...
@@ -346,7 +346,7 @@ How does this compare to our hand-built HTTP server?
 
 (Actually, this recommendation technically doesn't apply, since our request does not contain a message-body. In fact, I can't find anywhere that the HTTP spec requires a Content-Length header for POST with no message-body.  Can you?  But regardless, the Rack server does require the Content-Length header!)
 
-Let's pass a request header: 
+Let's pass a request header:
     $ curl -i -XPOST http://localhost:8080 -H "Content-Length:0"k
 
 
@@ -357,7 +357,7 @@ server.2.pass-a-named-class.rb
 Next step - Rack provides wrappers for request (env) and response (the triplet), as in this next server example...
 
 server.3.with-request-and-response-wrapper-classes.rb
-       
+
 
 ## Version 9 - Rack server with middleware
 **Goal** - Begin to understand middleware.

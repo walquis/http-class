@@ -1,6 +1,6 @@
 class Footer
   SHRIMP_STRING = <<BEGIN
-|/// 
+|///
  .*----___// <-- it's supposed to be a walking shrimp...
 <----/|/|/|
 BEGIN
