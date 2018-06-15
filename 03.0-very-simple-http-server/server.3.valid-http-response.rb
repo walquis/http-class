@@ -7,6 +7,7 @@ loop do
   puts "FROM THE CLIENT: "
   txt = socket.readline  # The first line, which is the Request-Line
   (method,uri,version) = txt.strip.split(' ')
+  name = uri.split('/')[1]
   puts "METHOD = #{method}, URI = #{uri}, version = #{version}"
 
   while txt = socket.readline
@@ -15,7 +16,11 @@ loop do
       puts "SERVER: reached end of request headers"
       socket.print("HTTP/1.1 200 OK\r\n")
       socket.print("\r\n")
-      socket.puts("Hello, world")
+      if method == 'GET'
+        socket.puts("Hello, #{name}")
+      else  
+        socket.puts("Goodbye, #{name}")
+      end
       puts "SERVER: Sent 'Hello, world' response to client"
       socket.close
       break
