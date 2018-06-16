@@ -321,7 +321,10 @@ What next?
 ## Version 6 - Server that handles a POST method
 **Goal** - Gain experience with using a spec to guide design choices.
 
-**Objective** - Receive a POST request from cURL with a parameter, return updated data.
+**Objective** - Receive a POST request from cURL with a parameter, successfully read the body using the Content-Length header.
+
+This line should be successfully processed by the server:
+    $ curl -dThisisData -XPOST -H "Content-Length: 10"  http://localhost:8080
 
 [TODO] - Have server append the request content to file, return the contents of the file.
 [TODO] - Look at POST definition in HTTP spec, discuss how it differs from GET.
