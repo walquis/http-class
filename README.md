@@ -58,9 +58,6 @@ What is being done for us here?  What kind of technologies does this server rely
 
 So, this app is a basic example of a TCP/IP client/server architecture.
 
-[If time, have students try hitting each others' servers from clients on different machines.
-They will need to discover each other's IP addresses...].
-
 TAKEAWAY:  This is about the simplest client and server we can imagine, but a LOT is going on under the hood!
 
 
@@ -73,6 +70,9 @@ What is missing from our client/server architecture?
 * (And, we're not relying on domain name resolution).
 * Also...BI-DIRECTIONAL DATA TRANSFER--which is critical for webapps.
 
+**Exercise**
+Have students try hitting each others' servers from clients on different machines.
+Hint: How does the client find the server?  On your Mac, "ifconfig en0 inet" may help.
 
 [Ten-Minute BREAK]
 
@@ -126,17 +126,23 @@ What do we need?  Some agreed way to signal when to stop reading.  Several optio
 * Read until you see a special character, or...
 * Read non-blocking.
 
-For now, let's just go with non-blocking:  Instead of read(), use recv(some-static-number-of-bytes).
+For now, let's just go with non-blocking.
+
+
+**Exercise**
+
+See if you can get this example to work by replacing read() with recv(some-static-number-of-bytes).
+
+**Solution**
 
 server.rb:
+
     puts "FROM THE CLIENT: " + socket.recv(10000)
 
 * To make this example work, we only have to do it on one side. [Why?]
 Let's do it on the server side.
-* This is a rather stupid implementation.  [Why?  ANSWER: Because we're assuming a maximum length]
-
-Use 10,000 bytes for max; surely no message will be longer than that!  (What kind of message could be longer...?)
-
+* What's wrong with this implementation? 
+ANSWER: We're assuming a maximum length.  What kind of message could be longer than 10,000 bytes...?
 
 
 ## Version 3 - Very Simple HTTP Server (use an existing HTTP client)
@@ -149,7 +155,7 @@ ANSWER: It communicates by implementing the HTTP protocol specification.
 * "What is a protocol?"  [A basis for communication; a code of correct conduct; a set of common, identifiable, and perhaps negotiable assumptions]
 * [What is the difference between TCP/IP and HTTP?]
 
-BTW...Earlier, I mentioned that bi-directional data transfer is needed for webapps?
+BTW...Earlier, I mentioned that bi-directional data transfer is needed for webapps.
 
 How do we know this?  *By looking at the spec*. Let's take a look at the HTTP 1.1 spec and see how HTTP clients and servers are supposed to communicate.
 
@@ -178,29 +184,29 @@ How about curl (as a client)?
 
 
 Let's look at the HTTP 1.1 spec in some more detail: https://tools.ietf.org/html/rfc2616
-> 1.1 Purpose
-> * "request/response"
-> * "open-ended set of methods and headers that indicate the purpose of a request"
-> * URL as "the resource to which the method is to be applied"
-> * "Messages are passed in a format similar to that used by Internet mail as defined by the Multipurpose Internet Mail Extensions (aka MIME)."
->
-> 1.4 Overall Operations
-> * "request/response protocol"
-> * Client sends Request: Method, URI, protocol version, followed by MIME-like message.
-> * Server responds with status line including msg protocol version and success-or-error-code, followed by MIME-like message.
+    1.1 Purpose
+    * "request/response"
+    * "open-ended set of methods and headers that indicate the purpose of a request"
+    * URL as "the resource to which the method is to be applied"
+    * "Messages are passed in a format similar to that used by Internet mail as defined by the Multipurpose Internet Mail Extensions (aka MIME)."
+    
+    1.4 Overall Operations
+    * "request/response protocol"
+    * Client sends Request: Method, URI, protocol version, followed by MIME-like message.
+    * Server responds with status line including msg protocol version and success-or-error-code, followed by MIME-like message.
 
 
-> 5 Request
->
-> Request = Request-Line;
->    *(( general-header
->    | request-header
->    | entity-header ) CRLF)
->   CRLF
->   [ message-body ]
->
-> 5.1 - Request-Line
-> Request-Line = Method SP Request-URI SP HTTP-Version CRLF
+    5 Request
+   
+    Request = Request-Line;
+       *(( general-header
+       | request-header
+       | entity-header ) CRLF)
+      CRLF
+      [ message-body ]
+   
+    5.1 - Request-Line
+    Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 
 
 What does all this mean?  [Skim over BNF notation, cut to the chase: "A line with an HTTP method, space, URL, space, HTTP/1.1"
@@ -216,15 +222,15 @@ How about the response...
 
 What should a valid HTTP response look like?  Where should we look?
 [HTTP 1.1 spec, section 6]
-> 6 Response
-> Response = Status-Line
->      *(( general-header
->       | response-header
->       | entity-header ) CRLF)
->      CRLF
->      [ message-body ]
-> 6.1 Status-Line
-> Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+    6 Response
+    Response = Status-Line
+         *(( general-header
+          | response-header
+          | entity-header ) CRLF)
+         CRLF
+         [ message-body ]
+    6.1 Status-Line
+    Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
 
 The HTTP response format looks a lot like the HTTP request format!
 
@@ -237,9 +243,9 @@ What's different?
 
 [Compare the response first-line with the HTTP spec.]
 
-Let's begin to turn our server into a "real HTTP server" (We will leave the client alone for now).
+Let's begin to turn our server into a "real HTTP server" (We will leave the client alone for now). TO-DO...
 * Fix the "recv(10000)" hack.
-* Add proper handling of an HTTP GET request to our server.rb.
+* Add proper handling of an HTTP GET request.
 
 
 Fixing recv(10000)...
