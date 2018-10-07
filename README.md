@@ -367,8 +367,7 @@ Discuss the results (e.g. server.first-attempt-at-POST.rb).  Why might you get "
 * Have your server respond with the contents of form.html on a 'GET /' request (from Chrome).
 * Modify your server to handle the parameter format that Chrome sends when you click 'Submit' on the form.
 * Send "Hi NAME" Response as previously, but also include a "Back" link that returns you to the form.
-(One solution is in 'server.3rd.respond-with-form.rb'.)
-(A better solution is in 'server.4th.respond-with-form.rb'.  Try diff'ing the two.)
+(One solution is in 'server.3rd.respond-with-form.rb'.  A better solution is in 'server.4th.respond-with-form.rb'.  Try diff'ing the two.)
 
 
 ## Version 7 - Server that handles a request header
