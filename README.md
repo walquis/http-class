@@ -189,26 +189,27 @@ What is an HTTP client we could use?  [curl, Chrome, ...]
 
 
 How about curl (as a client)?   '-i' in curl shows response headers, if there are any.
-
+```bash
     $ curl -i http://localhost:8080
-
-
+```
 Let's look at the HTTP 1.1 spec in some more detail: https://tools.ietf.org/html/rfc2616
-
+```
     1.1 Purpose
-
+```
 * "request/response"
 * "open-ended set of methods and headers that indicate the purpose of a request"
 * URL as "the resource to which the method is to be applied"
 * "Messages are passed in a format similar to that used by Internet mail as defined by the Multipurpose Internet Mail Extensions (aka MIME)."
 
+```
     1.4 Overall Operations
+```
 
 * "request/response protocol"
 * Client sends Request: Method, URI, protocol version, followed by MIME-like message.
 * Server responds with status line including msg protocol version and success-or-error-code, followed by MIME-like message.
 
-
+```
     5 Request
 
     Request = Request-Line;
@@ -220,7 +221,7 @@ Let's look at the HTTP 1.1 spec in some more detail: https://tools.ietf.org/html
 
     5.1 - Request-Line
     Request-Line = Method SP Request-URI SP HTTP-Version CRLF
-
+```
 
 What does all this mean?  [Skim over BNF notation, cut to the chase: "A line with an HTTP method, space, URL, space, HTTP/1.1"
 * HTTP is a request/response protocol.
@@ -234,7 +235,7 @@ How about the response...
 
 
 What should a valid HTTP response look like?  Where should we look?  The spec of course...
-
+```
     6 Response
     Response = Status-Line
          *(( general-header
@@ -244,16 +245,17 @@ What should a valid HTTP response look like?  Where should we look?  The spec of
          [ message-body ]
     6.1 Status-Line
     Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
-
-Noticet that the HTTP response format looks a lot like the HTTP request format!
+```
+Notice that the HTTP response format looks a lot like the HTTP request format!
 
 What's different?  The first line...
-
+```
     Request:    Request-Line = Method       SP Request-URI SP HTTP-Version  CRLF
     Response:   Status-Line  = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
-
+```    
+```bash
     $ curl -i http://www.google.com
-
+```
 [Compare the response first-line with the HTTP spec.]
 
 Let's begin to turn our server into a "real HTTP server" (We will leave the client alone for now). TO-DO...
