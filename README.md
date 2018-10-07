@@ -189,20 +189,24 @@ What is an HTTP client we could use?  [curl, Chrome, ...]
 
 
 How about curl (as a client)?   '-i' in curl shows response headers, if there are any.
+
     $ curl -i http://localhost:8080
 
 
 Let's look at the HTTP 1.1 spec in some more detail: https://tools.ietf.org/html/rfc2616
+
     1.1 Purpose
-    * "request/response"
-    * "open-ended set of methods and headers that indicate the purpose of a request"
-    * URL as "the resource to which the method is to be applied"
-    * "Messages are passed in a format similar to that used by Internet mail as defined by the Multipurpose Internet Mail Extensions (aka MIME)."
+
+* "request/response"
+* "open-ended set of methods and headers that indicate the purpose of a request"
+* URL as "the resource to which the method is to be applied"
+* "Messages are passed in a format similar to that used by Internet mail as defined by the Multipurpose Internet Mail Extensions (aka MIME)."
 
     1.4 Overall Operations
-    * "request/response protocol"
-    * Client sends Request: Method, URI, protocol version, followed by MIME-like message.
-    * Server responds with status line including msg protocol version and success-or-error-code, followed by MIME-like message.
+
+* "request/response protocol"
+* Client sends Request: Method, URI, protocol version, followed by MIME-like message.
+* Server responds with status line including msg protocol version and success-or-error-code, followed by MIME-like message.
 
 
     5 Request
