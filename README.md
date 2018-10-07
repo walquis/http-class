@@ -121,9 +121,11 @@ How might we get around this issue?
 
 You can see that it's starting to get messy...!
 
-What do we need?  Some agreed way to signal when to stop reading.  Several options...
+One way to describe this problem is the "Over" problem (from radio communications).
+
+What do we need?  Some agreed-upon signal when to stop reading.  Several options...
 * Agree how long the message will be, and read only that much, or...
-* Read until you see a special character, or...
+* Read until you see a special character (which one??), or...
 * Read non-blocking.
 
 For now, let's just go with non-blocking.
@@ -140,16 +142,20 @@ server.rb:
     puts "FROM THE CLIENT: " + socket.recv(10000)
 
 * To make this example work, we only have to do it on one side. [Why?]
-Let's do it on the server side.
-* What's wrong with this implementation? 
+* What's wrong with this implementation?
 ANSWER: We're assuming a maximum length.  What kind of message could be longer than 10,000 bytes...?
+* What would happen if we only read 10 bytes?  socket.recv(10)
+* What would we get if we added another socket.recv(10)  ?  [Talk about buffering]
 
 
 ## Version 3 - Very Simple HTTP Server (use an existing HTTP client)
-**Goal** - Understand what makes a server specifically an "HTTP" server, and why HTTP is necessary.
+**Goals**
+* Understand what makes a server specifically an "HTTP" server.
+* Deepen appreciation of why HTTP is necessary.
+
 **Objective** - Send valid HTTP request, and return valid HTTP response.
 
-* "What makes a server a "web" server?"  It sends HTML?  (Not exactly; it could send JSON, or CSV, or a file attachment, and still be a "web" server).
+* "What makes a server an "HTTP" server?"  It sends HTML?  (Not exactly; it could send JSON, or CSV, or a file attachment, and still be an "HTTP" server).
 ANSWER: It communicates by implementing the HTTP protocol specification.
 * [What is HTTP an acronym for?  What is "Hypertext"?]
 * "What is a protocol?"  [A basis for communication; a code of correct conduct; a set of common, identifiable, and perhaps negotiable assumptions]
@@ -161,25 +167,28 @@ How do we know this?  *By looking at the spec*. Let's take a look at the HTTP 1.
 
 https://tools.ietf.org/html/rfc2616 - The answer to "Where do they come up with this stuff?"
 
-> Section 1.4 - "In the simplest case, this may be accomplished VIA A SINGLE CONNECTION."  There it is!
+    Section 1.4 - "In the simplest case, this may be accomplished VIA A SINGLE CONNECTION."
+
+There it is!
 
 How close to HTTP is what we have already?
-* Can our server communicate with an HTTP client?
-* Can our client communicate with an HTTP server?
+* Can our server communicate with an HTTP client? [Let's try it]
+* Can our client communicate with an HTTP server? [Let's try it]
 
 FIRST - How could we try hitting our server.rb with an HTTP client?
 
     $ cd ../03.0-very-simple-http-server
     $ ruby server.rb
 
-What is an HTTP client we could use?  [Chrome? ...]
+What is an HTTP client we could use?  [curl, Chrome, ...]
 
 [Hit http://localhost:8080 with Chrome.  Look at the output.  Look at the response headers in Chrome.]
 
 [Examine the server output, talk about what we see.  For instance: Is our server sending valid HTTP?  Why isn't Chrome complaining? ]
-[Look at the response headers in Chrome.  Also, '-i' in curl shows response headers, if there are any]
+[Look at the response headers in Chrome.]
 
-How about curl (as a client)?
+
+How about curl (as a client)?   '-i' in curl shows response headers, if there are any.
     $ curl -i http://localhost:8080
 
 
@@ -189,7 +198,7 @@ Let's look at the HTTP 1.1 spec in some more detail: https://tools.ietf.org/html
     * "open-ended set of methods and headers that indicate the purpose of a request"
     * URL as "the resource to which the method is to be applied"
     * "Messages are passed in a format similar to that used by Internet mail as defined by the Multipurpose Internet Mail Extensions (aka MIME)."
-    
+
     1.4 Overall Operations
     * "request/response protocol"
     * Client sends Request: Method, URI, protocol version, followed by MIME-like message.
@@ -197,14 +206,14 @@ Let's look at the HTTP 1.1 spec in some more detail: https://tools.ietf.org/html
 
 
     5 Request
-   
+
     Request = Request-Line;
        *(( general-header
        | request-header
        | entity-header ) CRLF)
       CRLF
       [ message-body ]
-   
+
     5.1 - Request-Line
     Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 
@@ -220,8 +229,8 @@ How about the response...
 * What is wrong with the response?  (no request-line headers at all!)
 
 
-What should a valid HTTP response look like?  Where should we look?
-[HTTP 1.1 spec, section 6]
+What should a valid HTTP response look like?  Where should we look?  The spec of course...
+
     6 Response
     Response = Status-Line
          *(( general-header
@@ -232,10 +241,10 @@ What should a valid HTTP response look like?  Where should we look?
     6.1 Status-Line
     Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
 
-The HTTP response format looks a lot like the HTTP request format!
+Noticet that the HTTP response format looks a lot like the HTTP request format!
 
-What's different?
-* The first line:
+What's different?  The first line...
+
     Request:    Request-Line = Method       SP Request-URI SP HTTP-Version  CRLF
     Response:   Status-Line  = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
 
@@ -255,7 +264,7 @@ Now that we know we're implementing HTTP, we should have some guidance.  Does th
 
 Takes a little digging into the spec, but there is a nugget in section 4.3 that shines light:
 
-> 4.3 Message Body - " ... The presence of a message-body in a request is signaled by the inclusion of a Content-Length or Transfer-Encoding header field in the request's message-headers."
+    4.3 Message Body - " ... The presence of a message-body in a request is signaled by the inclusion of a Content-Length or Transfer-Encoding header field in the request's message-headers."
 
 So, if there's no *"Content-Length"* header, then a message-body is not present.  Awesome!
 
@@ -286,9 +295,9 @@ Its format looks just like a request, except for the first line:
 * Can we hit an HTTP server with our home-builtclient?  Let's try...[Anybody know of an HTTP server we could use?]
 * In client.rb, change "localhost" to e.g., "google.com".
 
-Homework [or lab?]: For the client, do what we did to the server:  Teach client.rb to send a valid HTTP GET request to server.rb (no cheating by using an HTTP library!).   Can your client get a valid HTTP response back from http://www.google.com and print it out to the console?
+**Exercise**
+For the client, do what we did to the server:  Teach client.rb to send a valid HTTP GET request to server.rb (no cheating by using an HTTP library!).   Can your client get a valid HTTP response back from http://www.google.com and print it out to the console?
 
-[OK, back to the server]
 
 
 We've come a long way...What have we learned?
@@ -297,7 +306,7 @@ We've come a long way...What have we learned?
 1. We got some practice reading the HTTP 1.1 spec, where we saw some of how HTTP *must* work, and also a bit about how it *should* work.
 
 What next?
-* Routing - What if we didn't assume GET?  What if we started paying attention to the Request-URI in the HTTP header?  Also, what if we started paying attention to the "Method" part of the HTTP message?
+* Routing - What if we started paying attention to the Request-URI in the HTTP header?  What if we also started paying attention to the "Method" part of the HTTP message?
 * Handling GET parameters - Everything that comes after the host:port
 * Handling a POST method.
 * Handling POST parameters - Reading the query params from the body of the request.
@@ -306,11 +315,12 @@ What next?
 ## Version 4 - Server with simple HTTP routing
 **Goal** - Understand what HTTP request routing is.
 
-**Objective** - Based on the request, decide whether to return "Hello, world" or "Goodbye, world".
+**Objective** - Based on the request URI's path, decide whether to return "Hello, world" or "Goodbye, world".
 
 [Discuss, based on what we see in the HTTP 1.1. spec, what our server needs to do.]
-[TODO] - Update server.rb to handle a path-based route.
 
+**Exercise**
+* Update server.rb to handle a path-based route.
 
 
 ## Version 5 - Server with Parameter handling
@@ -318,22 +328,41 @@ What next?
 
 **Objective** - In the place of "world", return the value of the request's 'name' parameter, e.g., "Hello, John".
 
-[TODO]- Update server.rb to process a GET request with a name=<value> param, and return a valid HTTP response.
-* [Look at the HTTP 1.1 spec, section 5, which defines a Request.]
-* Note what is and isn't in the "Request-URI" definition.  Notably, look at abs_path in 5.1.2.  Is the parameter-passing format name=value[&name=value...] defined in the HTTP 1.1. spec?
+**Exercise**
+* Update server.rb to process a GET request with a name=<value> param, and return a valid HTTP response.
+* Hint: Look at the HTTP 1.1 spec, section 5, which defines a Request.
+* "Extra Credit": Note what is and is not in the "Request-URI" definition.  Notably, look at abs_path in 5.1.2.  Is the "name=value[&name=value...]" format defined in the HTTP 1.1. spec?
 
 
 
 ## Version 6 - Server that handles a POST method
-**Goal** - Gain experience with using a spec to guide design choices.
+**Goals**
+* Gain experience with using a spec to guide design choices.
+* Understand why we let other people write HTTP request-response code (e.g., buffering mode headaches)
 
-**Objective** - Receive a POST request from cURL with a parameter, successfully read the body using the Content-Length header.
+**Objective** - Receive a POST request from cURL with parameters, and successfully read them from the body.
 
 This line should be successfully processed by the server:
-    $ curl -dThisisData -XPOST -H "Content-Length: 10"  http://localhost:8080
+    $ curl -d'name=Bob&place=Chicago' -XPOST -H "Content-Length: 22"  http://localhost:8080
 
-[TODO] - Have server append the request content to file, return the contents of the file.
-[TODO] - Look at POST definition in HTTP spec, discuss how it differs from GET.
+[Look at POST definition in HTTP spec, discuss how it differs from GET.]
+
+**Exercise**
+* Modify server.rb to read the parameter data in the body of the POST request.
+
+Discuss the results (e.g. server.first-attempt-at-POST.rb).  Why might you get "recv for buffered IO (IOError)"?
+
+**Exercise**
+* Use the library methods in 'lib/unbuffered.rb' to read header lines and the body. (require '../lib/unbuffered')
+* Bonus: Return an HTTP response with HTML that uses the parameters: "Hi NAME, welcome to PLACE!", where NAME and PLACE have the values of the POST'd parameters.
+(One solution is in 'server.second-attempt-at-POST.rb'.)
+
+**Exercise**
+* Have your server respond with the contents of form.html on a 'GET /' request (from Chrome).
+* Modify your server to handle the parameter format that Chrome sends when you click 'Submit' on the form.
+* Send "Hi NAME" Response as previously, but also include a "Back" link that returns you to the form.
+(One solution is in 'server.3rd.respond-with-form.rb'.)
+(A better solution is in 'server.4th.respond-with-form.rb'.  Try diff'ing the two.)
 
 
 ## Version 7 - Server that handles a request header
@@ -357,16 +386,18 @@ How does this compare to our hand-built HTTP server?
   - For example: Try hitting it with a POST request, using curl.  [Returns 411 "Length required"].
   That's pretty cool!  It implements this "4.4 Message Length" recommendation in RFC2616:
 
->     If a request contains a message-body and a Content-Length is not given,
->      the server SHOULD respond with 400 (bad request) if it cannot
->      determine the length of the message, or with 411 (length required) if
->      it wishes to insist on receiving a valid Content-Length.
+     If a request contains a message-body and a Content-Length is not given,
+      the server SHOULD respond with 400 (bad request) if it cannot
+      determine the length of the message, or with 411 (length required) if
+      it wishes to insist on receiving a valid Content-Length.
 
 (Actually, this recommendation technically doesn't apply, since our request does not contain a message-body. In fact, I can't find anywhere that the HTTP spec requires a Content-Length header for POST with no message-body.  Can you?  But regardless, the Rack server does require the Content-Length header!)
 
 Let's pass a request header:
-    $ curl -i -XPOST http://localhost:8080 -H "Content-Length:0"k
+    $ curl -i -XPOST http://localhost:8080 -H "Content-Length:0"
 
+**Exercise**
+* Use Rack::Request(env) to examine the request.
 
 More Rack - Let's do something a little fancier.  Let's use actual named Ruby classes, instead of an anonymous class.
 

@@ -10,20 +10,21 @@ loop do
   puts "METHOD = #{method}, URI = #{uri}, version = #{version}"
 
   while txt = socket.readline
-    puts txt
-    if txt =~ /Content-Length:/
-      (hname,content_length) = txt.split(' ')
-    end
-    if txt == "\r\n"  # i.e., CRLF
-      puts "SERVER: reached end of request headers"
-      break
-    end
+    puts txt  # Not doing anything with headers right now except printing to console
+    break if txt == "\r\n"  # i.e., CRLF on a line by itself...end of headers
   end
-  body = socket.recv(content_length)
-  puts "BODY: " + body
 
-  socket.print("HTTP/1.1 200 OK\r\n")
-  socket.print("\r\n")
+  if method=='GET'
+    if uri == '/hi'
+      socket.print("HTTP/1.1 200 OK\r\n\r\nHello, World\n")
+    elsif uri == '/bye'
+      socket.print("HTTP/1.1 200 OK\r\n\r\nGoodbye, World\n")
+    else
+      socket.print("HTTP/1.1 404 Not Found\r\n")
+    end
+  else
+    socket.print("HTTP/1.1 404 Not Found\r\n")
+  end
   socket.close
 end
 puts "SERVER: now I'm exiting"

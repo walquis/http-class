@@ -12,12 +12,16 @@ loop do
   while txt = socket.readline
     puts txt  # Not doing anything with headers right now except printing to console
     break if txt == "\r\n"  # i.e., CRLF on a line by itself...end of headers
+    if txt =~ /Content-Length:/
+      (hname,content_length) = txt.split(' ')
+    end
   end
+
+  body = socket.recv(content_length.to_i)
+  puts "BODY: " + body
 
   socket.print("HTTP/1.1 200 OK\r\n")
   socket.print("\r\n")
-  socket.puts("Hello, world")
-  puts "SERVER: Sent 'Hello, world' response to client"
   socket.close
 end
 puts "SERVER: now I'm exiting"
