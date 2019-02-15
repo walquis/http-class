@@ -29,6 +29,8 @@
 Setup:
     $ git clone https://github.com/walquis/http-class.
 
+NOTE: This curriculum and examples are Ruby-centric.  Some of them have been converted over to Python.
+
 * Receive a request from a client (e.g., client.rb, cURL, and/or telnet), and return "Hello, world".
 [Describe server.rb and client.rb and run them side-by-side.  Have the students do it too].
 
@@ -108,7 +110,7 @@ Let's try it!  [Run server.rb, then client.rb]
 
 Why does it hang?  Because by default, socket I/O is "blocking"...the read() waits until the socket is closed before moving on.
 
-(NOTE: In Python, there is no socket.read().  Instead, you must use socket.recv(max-bytes).  And the only time the Python recv() blocks is if there is no data.  So this issue *sort of* goes away.)
+[NOTE: In Python, there is no socket.read(), socket.readline, nor socket.getc().  There is only socket.recv(max-bytes).  It seems as if the Ruby socket library is trying hard (maybe too hard?) to handle text-based, that is, text-line-oriented data.  Python's socket.recv() blocks by default, but only until it receives data.  So the discussion about the program "hanging" is Ruby-centric.]
 
 The sequence of events:
 1. Connection established by opening the socket.
@@ -184,12 +186,13 @@ FIRST - How could we try hitting our server.rb with an HTTP client?
     $ cd ../03.0-very-simple-http-server
     $ ruby server.rb
 
-What is an HTTP client we could use?  [curl, Chrome, ...]
+What is an HTTP client we could use?  [Is client.rb an HTTP client?  Why or why not?  curl, Chrome, ...]
 
 [Hit http://localhost:8080 with Chrome.  Look at the output.  Look at the response headers in Chrome.]
 
-[Examine the server output, talk about what we see.  For instance: Is our server sending valid HTTP?  Why isn't Chrome complaining? ]
-[Look at the response headers in Chrome.]
+[Examine the server output, talk about what we see.  For instance: Is our server sending valid HTTP?  What does Chrome think of it? ]
+
+[Look at the response headers in Chrome, if Chrome shows a response in the network tab.]
 
 
 How about curl (as a client)?   '-i' in curl shows response headers, if there are any.
@@ -262,15 +265,16 @@ What's different?  The first line...
 ```
 [Compare the response first-line with the HTTP spec.]
 
-Let's begin to turn our server into a "real HTTP server" (We will leave the client alone for now). TO-DO...
-* Fix the "recv(10000)" hack.
-* Add proper handling of an HTTP GET request.
+Let's begin to turn our server into a "real HTTP server" (We will leave the client alone for now).
+* TO-DO...
+*# Fix the "recv(10000)" hack.
+*# Add proper handling of an HTTP GET request.
 
 
 Fixing recv(10000)...
-Recall that because our simple server.rb didn't know how to tell when a request was finished "requesting", we cheated and said, "Let's just read whatever is there, or 10,000 bytes, whichever comes first, hope that's good enough".  But that's not very good service...
+Recall that because our simple server.rb didn't know how to tell when a request was finished "requesting", we cheated and said, "Let's just read whatever is there, or 10,000 bytes, whichever comes first, and hope that's good enough".  But that's not very good service...
 
-Now that we know we're implementing HTTP, we should have some guidance.  Does the HTTP spec tell us when a GET request is finished?
+Since we're implementing HTTP, the HTTP protocol spec should specify how we should be able to tell when a GET request is finished...
 
 Takes a little digging into the spec, but there is a nugget in section 4.3 that shines light:
 
@@ -280,10 +284,11 @@ So, if there's no *"Content-Length"* header, then a message-body is not present.
 
 *(You can go deep here, by asking "Well, COULD a GET request ever contain a message body?"  This post is an example demonstrating that people really do go back to the spec to answer such questions:  https://stackoverflow.com/questions/978061/http-get-with-request-body   The short answer is Yes, you can put a message-body in a GET request; and NO, you should never actually do so.)*
 
+Why exactly is that awesome?
 
 For our very simple HTTP server, let's make the simplifying assumption that a GET request has no message body--AND, we'll also assume that every request is a GET request (that is, we're not checking whether the first line starts with "GET", and we're not checking for Content-Length header).
 
-This means that if our server sees a CRLF by itself...aHA, the request is complete!  Send the response and go on.
+This means that if our server sees a CRLF by itself...then the request is complete!  Send the response and go on.
 
     $ ruby server.2.recv-replaced.rb
 
