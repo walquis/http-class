@@ -5,6 +5,6 @@ listener = TCPServer.open(8080)
 socket = listener.accept  # Wait til a client connects, then open a socket.
 puts "FROM THE CLIENT: " + socket.read
 socket.puts("Hello, world")
-puts "SERVER: Sent 'Hello, world' to client"
+puts "SERVER: Sent 'Hello, world' response to client"
 socket.close
 puts "SERVER: now I'm exiting"

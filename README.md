@@ -107,6 +107,9 @@ Client has just two lines added.  How about the server?
 Let's try it!  [Run server.rb, then client.rb]
 
 Why does it hang?  Because by default, socket I/O is "blocking"...the read() waits until the socket is closed before moving on.
+
+(NOTE: In Python, there is no socket.read().  Instead, you must use socket.recv(max-bytes).  And the only time the Python recv() blocks is if there is no data.  So this issue *sort of* goes away.)
+
 The sequence of events:
 1. Connection established by opening the socket.
 1. Server listens on the socket, waiting to hear what the client has to say. In other words, it "blocks".
@@ -134,6 +137,7 @@ For now, let's just go with non-blocking.
 **Exercise**
 
 See if you can get this example to work by replacing read() with recv(some-static-number-of-bytes).
+
 
 **Solution**
 

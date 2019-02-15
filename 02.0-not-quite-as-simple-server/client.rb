@@ -1,5 +1,5 @@
-require 'socket' # A library built into Ruby - provides the TCPSocket class 
- 
+require 'socket' # A library built into Ruby - provides the TCPSocket class
+
 socket = TCPSocket.open('localhost',8080)
 socket.puts "Hi there, server!"
 puts "CLIENT: Sent 'Hi there, server!' to server"

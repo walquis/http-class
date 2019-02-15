@@ -4,11 +4,9 @@ $stdout.sync = 1  # Line-buffer output to STDOUT.
 listener = TCPServer.open(8080)
 loop do
   socket = listener.accept  # Wait til a client connects, then open a socket.
-  puts "FROM THE CLIENT: "
-  txt = socket.recv(10000)
-  puts txt
+  puts "FROM THE CLIENT: "  + socket.recv(1024)
   socket.puts("Hello, world")
-  socket.close
   puts "SERVER: Sent 'Hello, world' response to client"
+  socket.close
 end
 puts "SERVER: now I'm exiting"
