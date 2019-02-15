@@ -1,31 +1,5 @@
 require 'socket' # A library built into Ruby - provides the TCPServer class
-require 'pry'
-
-def read_line_unbuffered_from s
-  line = ''
-  byte = s.getc
-  loop do 
-    line += byte
-    if byte == "\n"
-      break if line[-2]=="\r"  # Make sure it's \r\n ...
-    end
-    byte = s.getc
-  end
-  line
-end
-
-def read_body_from s, size
-  body = ''
-  bytes_read = 0
-  byte = s.getc
-  loop do 
-    body += byte
-    bytes_read += 1
-    break if bytes_read == size
-    byte = s.getc
-  end
-  body
-end
+require '../lib/unbuffered'
 
 $stdout.sync = 1  # Line-buffer output to STDOUT.
 listener = TCPServer.open(8080)
@@ -36,6 +10,7 @@ loop do
   (method,uri,version) = txt.strip.split(' ')
   puts "METHOD = #{method}, URI = #{uri}, version = #{version}"
 
+  content_length=0
   while txt = read_line_unbuffered_from(socket)
     puts txt
     if txt =~ /Content-Length:/
@@ -46,8 +21,10 @@ loop do
       break
     end
   end
-  body = read_body_from(socket, content_length.to_i)
-  puts "BODY: " + body
+  if content_length > 0
+    body = read_body_from(socket, content_length.to_i)
+    puts "BODY: " + body
+  end
 
   socket.print("HTTP/1.1 200 OK\r\n")
   socket.print("\r\n")
