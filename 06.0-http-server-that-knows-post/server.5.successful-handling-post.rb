@@ -21,13 +21,27 @@ loop do
       break
     end
   end
-  if content_length > 0
-    body = read_body_from(socket, content_length.to_i)
-    puts "BODY: " + body
+
+  # Routing Section
+  if method=='GET'
+    socket.print("HTTP/1.1 200 OK\r\n")
+    socket.print("Content-type: text/html\r\n")
+    socket.print("\r\n")
+    socket.print('<html><body><form method="POST" action="/">
+    <input type="submit">
+    <input value="data" name="myinput">
+    <input name="2ndinput" value="someOtherDataWoohoo">
+    </form></body></html>')
+  elsif method=='POST'
+    if content_length.to_i > 0
+      body = read_body_from(socket, content_length.to_i)
+      puts "BODY: " + body
+
+      socket.print("HTTP/1.1 200 OK\r\n")
+      socket.print("\r\n")
+    end
   end
 
-  socket.print("HTTP/1.1 200 OK\r\n")
-  socket.print("\r\n")
   socket.close
 end
 puts "SERVER: now I'm exiting"
