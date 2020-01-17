@@ -14,7 +14,6 @@
 * Version 9 - Rack with middleware
 * Version 10 - Very simple Sinatra server - a micro-framework
 
-
 ### Goals
 * Get introduced to reading specification documents--in this case, RFC2616, the HTTP 1.1 spec.
 * Understand the basic relationship between TCP/IP, HTTP, and HTML.
@@ -27,19 +26,26 @@
 **Objective** - Establish a "reliable" network connection and transmit data one way.
 
 Setup:
-    $ git clone https://github.com/walquis/http-class.
+```
+$ git clone https://github.com/walquis/http-class.
+```
 
-NOTE: This curriculum and examples are Ruby-centric.  Some of them have been converted over to Python.
+NOTE: This curriculum and examples are Ruby-centric.  You may find that some of them have also been implemented in Python.
 
 * Receive a request from a client (e.g., client.rb, cURL, and/or telnet), and return "Hello, world".
-[Describe server.rb and client.rb and run them side-by-side.  Have the students do it too].
 
-    $ cd 01.0-very-simple-server
-    $ ruby server.rb
-[ Open another terminal window ]
-    $ cd 01.0-very-simple-server
-    $ ruby client.rb  # In another window.
+\[Describe server.rb and client.rb and run them side-by-side.  Have the students do it too\].
 
+```
+$ cd 01.0-very-simple-server
+$ ruby server.rb
+```
+
+\[ Open another terminal window ]
+```
+$ cd 01.0-very-simple-server
+$ ruby client.rb  # In another window.
+```
 Doesn't seem like much, does it?
 What happens if you run client.rb first?
 What is being done for us here?  What kind of technologies does this server rely on?
