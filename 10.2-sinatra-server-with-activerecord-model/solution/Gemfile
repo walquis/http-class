@@ -1,0 +1,11 @@
+source 'http://rubygems.org'
+
+ruby '2.5.1'
+
+gem 'sinatra'
+gem 'json'
+gem 'pry'
+
+gem 'sqlite3'
+gem 'sinatra-activerecord'
+gem 'racksh'
