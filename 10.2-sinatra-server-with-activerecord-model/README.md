@@ -58,7 +58,7 @@ require 'sinatra/activerecord'
 require './models/user'
 ```
 
-### Tell ActiveRecord where the database is: 
+### Tell ActiveRecord where the database is:
 ```
 $ mkdir config   # This is where ActiveRecord expects to find database.yml
 ```
@@ -70,13 +70,26 @@ development:
   database: db/development.sqlite3
 ```
 
+### Tell Bundler where ActiveRecord is:
+Add the 'sinatra-activerecord' gem to your Gemfile and run 'bundle install'...
+```
+gem 'sinatra-activerecord'
+```
+
 ## Add racksh, to test querying data via the User model
-Add the 'racksh' gem to your Gemfile and run 'bundle install'.
+Add the 'racksh' gem to your Gemfile and run 'bundle install'...
 ```
 gem 'racksh'
 ```
-Like Sinatra, racksh sits on the [Rack](https://github.com/rack/rack){:target="_blank"} webserver interface, which expects a 'config.ru' file for instructions on running your app.  Add this content to 'config.ru':
+Rack-based apps and webservers (Racksh, Webrick, Thin, Puma, Rails, etc.) sit on top of the [Rack](https://github.com/rack/rack) webserver interface.
+
+Because they use [rackup](https://github.com/rack/rack/wiki/(tutorial)-rackup-howto) internally to interface between the server and the framework, ```config.ru``` serves as the entry point to any Rack based program, providing instructions to Rack on how to run your app.
+
+The webserver won't need Racksh for running, but racksh is useful as an interactive command-line tool that "knows" your Sinatra environment, much as if it were a webserver.  Once we get it running, we can test that our User model is working, as you'll see below.
+
+Add this content to 'config.ru':
 ```
+# Require your app code which uses Sinatra's DSL, and then run the Sinatra framework.
 require './server'
 run Sinatra::Application
 ```
