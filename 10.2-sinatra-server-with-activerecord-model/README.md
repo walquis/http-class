@@ -58,7 +58,7 @@ require 'sinatra/activerecord'
 require './models/user'
 ```
 
-### Tell ActiveRecord where the database is:
+### Tell ActiveRecord what database adapter to use, and how to connect:
 ```
 $ mkdir config   # This is where ActiveRecord expects to find database.yml
 ```
@@ -70,9 +70,10 @@ development:
   database: db/development.sqlite3
 ```
 
-### Tell Bundler where ActiveRecord is:
-Add the 'sinatra-activerecord' gem to your Gemfile and run 'bundle install'...
+### Tell Bundler about the gems corresponding to your chosen Object-Relational-Mapping tools
+Add these lines to your Gemfile and run 'bundle install'...
 ```
+gem 'sqlite3'
 gem 'sinatra-activerecord'
 ```
 
