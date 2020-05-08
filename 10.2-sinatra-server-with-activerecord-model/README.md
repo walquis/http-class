@@ -17,15 +17,15 @@ $ brew install sqlite  #  If on a mac and 'sqlite3' returns 'command not found'.
 $ mkdir db
 $ sqlite3 db/development.sqlite3
 
-sqlite> create table users ( id integer primary key, firstname string, login string );
+sqlite> create table users ( id integer primary key autoincrement not null, firstname string, login string );
 ```
 
 Now add a record:
 ```
-sqlite> insert into users values (1, 'Bob', 'bloblaw');
+sqlite> insert into users ( firstname, login ) values ( 'Bob', 'bloblaw' );
 ```
 
-Check that you can query it back:
+Check that you can query it back.  (Notice how 'id' has automatically been assigned to 1.  That's due to the 'autoincrement' property we gave it above, when creating the table).
 ```
 sqlite> select * from users;
 1|Bob|bloblaw
@@ -63,7 +63,7 @@ require './models/user'
 $ mkdir config   # This is where ActiveRecord expects to find database.yml
 ```
 
-Create a config/database.yml file with this content (between the lines):
+Create a config/database.yml file with this content (between the lines).  Make sure there are no tabs, only spaces, in your .yml file.  YAML does not accept tab characters.
 ```
 development:
   adapter: sqlite3
