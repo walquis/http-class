@@ -25,7 +25,7 @@ Now add a record:
 sqlite> insert into users ( firstname, login ) values ( 'Bob', 'bloblaw' );
 ```
 
-Check that you can query it back.  (Notice how 'id' has automatically been assigned to 1.  That's due to the 'autoincrement' property we gave it above, when creating the table).
+Check that you can query it back.  (Notice how 'id' has automatically been assigned to 1, thanks to the 'autoincrement' property we gave it when creating the table).
 ```
 sqlite> select * from users;
 1|Bob|bloblaw
