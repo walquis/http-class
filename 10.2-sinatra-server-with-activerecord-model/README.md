@@ -17,7 +17,7 @@ $ brew install sqlite  #  If on a mac and 'sqlite3' returns 'command not found'.
 $ mkdir db
 $ sqlite3 db/development.sqlite3
 
-sqlite> create table users ( id integer primary key autoincrement not null, firstname string, login string );
+sqlite> create table "users" ( "id" integer primary key autoincrement not null, "firstname" varchar, "login" varchar );
 ```
 
 Now add a record:
